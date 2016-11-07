@@ -1,0 +1,61 @@
+---
+title: "Regression Worksheet"
+author: "Ryan Burge"
+date: "November 2, 2016"
+output:
+  html_document: default
+  
+---
+
+```{r message=FALSE, warning=FALSE}
+#install.packages("tidyverse")
+#install.packages("car")
+#install.packages("dotwhisker")
+library(tidyverse)
+library(car)
+library(dotwhisker)
+simon <- read.csv(url("http://goo.gl/exQA14"))
+```
+
+## Recoding
+
+```{r message=FALSE, warning=FALSE}
+simon$rauner <- recode(simon$app_gov_rau, "9=3")
+simon$partyid <- recode(simon$party_leans, "8=0; 9=0")
+simon$male <- recode(simon$gender, "2=0")
+simon$labor <- recode(simon$union, "1=1; else=0")
+simon$downstate <- recode(simon$area, "3=1; else=0")
+simon$age <- 2016 - simon$birth_yr
+simon$age <- recode(simon$age, "116=0")
+simon$income <- recode(simon$hhinc, "8=0; 9=0")
+
+```
+
+## OLS Regression
+
+
+```{r message=FALSE, warning=FALSE}
+reg1 <- lm(rauner ~ partyid + age + labor + income + downstate + male, data = simon)
+summary(reg1)
+dwplot(reg1)  + geom_vline(xintercept = 0, colour = "grey50", linetype = 2)
+
+```
+
+## Add Black
+
+```{r message=FALSE, warning=FALSE}
+simon$black <- recode(simon$rac_eth, "2=1; else=0")
+reg1 <- lm(rauner ~ partyid + age + labor + income + downstate + male + black, data = simon)
+dwplot(reg1)  + geom_vline(xintercept = 0, colour = "grey50", linetype = 2)
+summary(reg1)
+
+```
+
+## Logit Regression 
+
+```{r message=FALSE, warning=FALSE}
+simon$mjrec <- recode(simon$mari_rec, "1=1; else=0")
+reg1 <- glm(mjrec ~ partyid + age + labor + income + downstate + male + black, data = simon)
+summary(reg1)
+dwplot(reg1)  + geom_vline(xintercept = 0, colour = "grey50", linetype = 2)
+```
