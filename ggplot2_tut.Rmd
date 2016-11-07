@@ -1,0 +1,130 @@
+---
+title: "Jack's Worksheet"
+author: "Ryan Burge"
+date: "October 1, 2016"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(ggplot2)
+table <- read.csv("D:/table.csv", stringsAsFactors = FALSE)
+```
+
+All I did there was load in ggplot2 and then load in my data into a dataset called "table"
+
+There's a link to the data [here](https://www.dropbox.com/s/554s03l9cjfqsxm/table.csv?dl=0)
+
+```{r message=FALSE, warning=FALSE}
+head(table)
+```
+
+Now, we've got a problem. Both the appropriated column and the unexpended column have quotation marks around them. That's because R doesn't seem them as numbers, it sees them as a character string. A big reason why is because there is a dollar sign and commmas in each of those entries. I need to take those out. 
+
+```{r message=FALSE, warning=FALSE}
+table <- read.csv("D:/table.csv", stringsAsFactors = FALSE)
+table$Appropriated <- gsub('\\$','', table$Appropriated)
+table$Appropriated <- gsub(',','', table$Appropriated)
+table$Unexpended <- gsub('\\$','', table$Unexpended)
+table$Unexpended <- gsub(',','', table$Unexpended)
+head(table)
+```
+Now they are cleaned up, I can convert them to numbers
+
+```{r message=FALSE, warning=FALSE}
+table$Unexpended <- as.numeric(table$Unexpended)
+table$Appropriated <- as.numeric(table$Appropriated)
+```
+I want to know what percentage of appropriated funds have not been expended by the state. I will create a new variable called "new" which will be unexpended funds divided by appropriated funds to give me a percentage. I also need to divide it by a thousand to get me to the proper percentage as well as subtract it from 1. 
+
+```{r message=FALSE, warning=FALSE}
+table$new <- table$Unexpended/table$Appropriated
+table$new/1000
+table$new <- round(table$new, digits =2)
+table$new <- 1 - table$new
+table$new
+```
+
+Well, look at that. I had to add a rounding command to trim the digits up a little bit. 
+
+Let's take a crack at plotting. 
+
+```{r message=FALSE, warning=FALSE}
+ggplot(table, aes(x= Agency, y= new)) + geom_bar(stat="identity")
+```
+
+
+Here's what that command did. From left to right. 
+
+"table" is the name of my dataset.
+
+aes(x= Agency, y= new) tells ggplot to make my x axis the "Agency" variable and my y axis to be the "new" variable we created above. 
+
+And then, geom_bar(stat="identity") tells ggplot to do a bar chart and the "stat=identity" part tells R to plot the values exactly as they exist in the dataset, otherwise it would give you a count, which is not helpful. 
+
+However, I want the chart to be easy to read. One way to do that is to make the x axis sorted in a way that makes sense. Here's how to do that. 
+
+```{r message=FALSE, warning=FALSE}
+ggplot(table, aes(x=reorder(Agency, -new), y = new)) + geom_bar(stat="identity")
+```
+
+The "(x=reorder(Agency, -new)" is essentially this: my X axis is going to be the names of the agencies but I don't want ggplot to just plot them in the same order as they exist in the dataset, I want it to plot them in order of highest percentage to least percentage, remember that's my "new" variable that I created above. I put the negative sign to do that in descending order. If you left that off it would plot them order from least to most, not most to least. 
+
+That's way easier to read. 
+
+So, we're in the ballpark now. 
+
+First thing is to make the names of the agency to be readable.
+
+```{r message=FALSE, warning=FALSE}
+ggplot(table, aes(x=reorder(Agency, -new), y = new)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 90))
+```
+
+All I did was add this bit: + theme(axis.text.x = element_text(angle = 90)). That rotates the variable labels to 90 degrees. Now they are readable. 
+
+Now, I've got another problem that I want to fix. I've got a couple columns in there that aren't state universities. I want to dump them. Let's take a look at what rows they are. 
+
+
+```{r message=FALSE, warning=FALSE}
+table$Agency
+```
+
+You can count the rows pretty easily here. I want to dump rows 7, 9, 12, 13, 14, 15, 16. 
+
+```{r message=FALSE, warning=FALSE}
+table <- table[-c(7, 9, 12, 13, 14, 15, 16), ]
+table$Agency
+```
+
+Don't forget the negative sign. That deletes those rows. 
+
+Let's look at the plot again. 
+
+```{r message=FALSE, warning=FALSE}
+ggplot(table, aes(x=reorder(Agency, -new), y = new)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 90))
+```
+
+Now, we are pretty darn close. I really want to use a pop of color here to make EIU stand out. So, here's how I do that. If I look at the table$Agency row I see that EIU is the sixth row. So I want to create a new column where EIU is different somehow. That will allow me to color it differently in the final chart. Here's how I did that. 
+
+```{r message=FALSE, warning=FALSE}
+table$area.color <- c("one", "one", "one", "one", "one", "two" , "one", "one", "one")
+table
+```
+
+So, now we have a new column called area.color that has EIU listed as two and everyone else is listed as one. I can use that to my advantage now. 
+
+```{r message=FALSE, warning=FALSE}
+ggplot(table, aes(x=reorder(Agency, -new), y = new, fill=area.color)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 90)) +scale_fill_manual(values = c("gray", "blue"))
+```
+
+I added one new command here: +scale_fill_manual(values = c("gray", "blue")) as well as adding "fill=area.color"
+
+What that does is tell R to add a fill color based on the "area.color" column. The scale_fill_manaul command tells R which colors to pick for that fill command. All "one" will get gray, all "two" will get blue. That's a pretty advanced task, but it's easier the second time. Now, just some clean up stuff. 
+
+```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+ggplot(table, aes(x=reorder(Agency, -new), y = new, fill=area.color)) + geom_bar(stat="identity") + theme(axis.text.x = element_text(angle = 90)) +scale_fill_manual(values = c("gray", "blue")) + xlab("University") + ylab("Percentage of Appropriation Received") + theme(legend.position="none") + theme(text=element_text(size=16, family="Roboto Medium")) + ggtitle("Percentage of Appropriation Received by Each University in Illinois")
+```
+
+I added axis labels with the xlab and ylab commands. I added a title with the ggtitle command. I also changed my font with the
+theme(text=element_text(size=12, family="Roboto Medium")) command. I also got rid of the legend, because I don't really need it and it doesn't tell me much. 
+
+
