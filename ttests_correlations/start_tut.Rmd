@@ -1,0 +1,42 @@
+---
+title: "Recodes and Package Installs"
+author: "Ryan Burge"
+date: "October 30, 2016"
+output: html_document
+---
+
+
+## Downloading and Installing R
+
+You need to have downloaded and installed R and R studio before you begin.
+
+A link to R is [here](https://cran.r-project.org/bin/windows/base/)
+
+A link to R Studio is [here](https://www.rstudio.com/products/rstudio/download/)
+
+## Package Installation
+
+One of the reasons that R is so great is that you can install packages that do really helpful things. The three that you need to complete Assignment 1 are ggplot2, dplyr, and car. You can install them and load them with the following syntax. 
+
+Note: I put a hashtag (#) in front of the install.packages command because I had already installed them on my computer. Just delete those hashtags before you put them in your R console. Make sure to use the library command to actually load them into your R memory. 
+
+```{r message=FALSE, warning=FALSE}
+#install.packages("ggplot2")
+#install.packages("dplyr")
+#install.pacakges("car")
+library(ggplot2)
+library(dplyr)
+library(car)
+```
+
+## Load in your data
+
+The below command will load in your data and call it "simon"
+
+The codebook for this data is [here](http://opensiuc.lib.siu.edu/cgi/viewcontent.cgi?article=1010&context=ppi_statepolls)
+
+```{r message=FALSE, warning=FALSE}
+simon <- read.csv(url("http://goo.gl/exQA14"))
+```
+
+## Recodes
