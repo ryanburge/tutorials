@@ -1,4 +1,17 @@
 ---
+layout: post
+title: "Regression Worksheet"
+date: 2016-11-07
+output:
+  html_document
+share: true
+categories: blog
+excerpt: "Walking studenst through a basic regression analysis as well as visualizing results with dotwhisker"
+tags: [rstats]
+---
+
+
+---
 title: "Regression Worksheet"
 author: "Ryan Burge"
 date: "November 2, 2016"
