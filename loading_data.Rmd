@@ -8,6 +8,8 @@ output: html_document
 
 ## Introduction
 
+**You need to make sure that you are using R Studio Version 1.0 or higher to load data using this tutorial**
+
 There are lots of ways to read data into R. The one that I have been having you use is probably the simplest because it takes zero work on your end. Essentially what the following command does it just download the .csv straight from the SIU website and load it into R. Here's the command you've been familiar with:
 
 ```{r message=FALSE, warning=FALSE}
@@ -66,13 +68,25 @@ To make sure it worked just do:
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE}
 library(readr)
-df <- read_csv("C:/Users/Ryan Burge/Desktop/data.csv")
+df <- read_csv("C:/tutorials/data.csv")
 View(df)
 ```
 
 ```{r message=FALSE, warning=FALSE}
 head(df)
 ```
+
+## Writing a datafile
+
+Let's say that you have done some manipulations to a datafile and you want to save that new file. Here's how you do that. 
+
+```{r message=FALSE, warning=FALSE}
+write.csv(df, "saved_data.csv")
+```
+
+And it's at the very bottom of the "Files" pane in the bottom right of R Studio. 
+
+![](kaggle7.png)
 
 ## Where to find data? 
 
